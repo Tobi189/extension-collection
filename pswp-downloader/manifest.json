@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "PSWP Slideshow Downloader",
+  "version": "1.1",
+  "description": "Downloads slideshow images one by one by clicking next.",
+  "permissions": [
+    "downloads",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "commands": {
+    "start-download": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
+      },
+      "description": "Start downloading slideshow images"
+    }
+  }
+}

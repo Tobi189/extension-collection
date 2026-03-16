@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>PSWP Downloader</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 12px;
+        width: 280px;
+      }
+      h1 {
+        font-size: 16px;
+        margin: 0 0 10px;
+      }
+      label {
+        display: block;
+        margin: 8px 0 4px;
+        font-size: 13px;
+      }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 6px 8px;
+      }
+      button {
+        width: 100%;
+        margin-top: 12px;
+        padding: 8px;
+        cursor: pointer;
+      }
+      #status {
+        margin-top: 10px;
+        font-size: 12px;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>PSWP Downloader</h1>
+    <label for="delayMs">Wait after click / load (ms)</label>
+    <input id="delayMs" type="number" min="300" step="100" value="1200" />
+    <button id="startBtn">Start download</button>
+    <div id="status"></div>
+    <script src="popup.js"></script>
+  </body>
+</html>
