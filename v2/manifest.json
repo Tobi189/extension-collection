@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Magcomi Spread Downloader (Screenshot Crop)",
+  "version": "1.0.0",
+  "description": "Downloads Magcomi left/right/spread by screenshot cropping visible canvases.",
+  "permissions": ["activeTab", "tabs", "downloads", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Manga Canvas Viewer",
+    "default_popup": "popup.html"
+  },
+  "commands": {
+  "_execute_action": {
+    "suggested_key": {
+      "default": "Alt+Shift+M"
+    },
+    "description": "Open Manga Auto Downloader popup"
+  }
+}
+}
