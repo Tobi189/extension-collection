@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Comic Fuz, Manga-one",
+  "version": "1.1.0",
+  "permissions": ["activeTab", "tabs", "downloads", "scripting", "windows"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Comic Fuz Downloader"
+  },
+  "commands": {
+    "open_controls": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+K"
+      },
+      "description": "Open controls window"
+    }
+  }
+}
