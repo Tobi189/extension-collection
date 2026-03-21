@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Magcomi Spread Downloader (Screenshot Crop)",
+  "name": "Magcomi, viewer.heros-web, ichicomi Spread Downloader (Screenshot Crop)",
   "version": "1.0.0",
   "description": "Downloads Magcomi left/right/spread by screenshot cropping visible canvases.",
   "permissions": ["activeTab", "tabs", "downloads", "scripting"],

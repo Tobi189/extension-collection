@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "comic-walker, ichicomi",
+  "name": "comic-walker",
   "version": "2.1.0",
   "description": "Captures active Splide reader canvases by cropping the visible slide from screenshots.",
   "permissions": ["activeTab", "tabs", "downloads", "scripting", "windows"],
