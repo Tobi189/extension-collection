@@ -1,3 +1,16 @@
+document.addEventListener("DOMContentLoaded", async()=>{
+  const shortcutEl = document.getElementById("shortcut");
+  try {
+    const commands = await chrome.commands.getAll();
+    const cmd = commands.find(c => c.name === "_execute_action");
+
+    shortcutEl.textContent = cmd?.shortcut || "Not set";
+  }catch(err){
+    shortcutEl.textContent = "Unavailable";
+    console.error(err);
+  }
+});
+
 function call(type) {
   chrome.runtime.sendMessage({ type }, (response) => {
     if (chrome.runtime.lastError) {

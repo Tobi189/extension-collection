@@ -1,3 +1,17 @@
+document.addEventListener("DOMContentLoaded", async()=>{
+  const shortcutEl = document.getElementById("shortcut");
+  try{
+    const commands = await chrome.commands.getAll();
+    const cmd = commands.find( (c) => c.name === "open_controls");
+
+    shortcutEl.textContent = cmd?.shortcut || "Not set";
+  }catch(err){
+    shortcutEl.textContent = "Unavailable";
+    console.error(err);
+  }
+})
+
+
 const statusEl = document.getElementById("status");
 
 function setStatus(text, isError = false) {
