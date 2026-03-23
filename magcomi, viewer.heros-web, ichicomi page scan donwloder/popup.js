@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", async()=>{
     shortcutEl.textContent = "Unavailable";
     console.error(err);
   }
-})
+});
 
 function fire(type) {
   chrome.runtime.sendMessage({ type });

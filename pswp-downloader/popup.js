@@ -2,6 +2,19 @@ const statusEl = document.getElementById("status");
 const startBtn = document.getElementById("startBtn");
 const delayInput = document.getElementById("delayMs");
 
+document.addEventListener("DOMContentLoaded", async()=>{
+  const shortcutEl = document.getElementById("shortcut");
+  try{
+    const commands = await chrome.commands.getAll();
+    const cmd = commands.find( (c) => c.name === "suggested_key");
+
+    shortcutEl.textContent = cmd?.shortcut || "Not set";
+  }catch(err){
+    shortcutEl.textContent = "Unavailable";
+    console.error(err);
+  }
+});
+
 function setStatus(text) {
   statusEl.textContent = text;
 }
