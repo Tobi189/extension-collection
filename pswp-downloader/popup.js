@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", async()=>{
   const shortcutEl = document.getElementById("shortcut");
   try{
     const commands = await chrome.commands.getAll();
-    const cmd = commands.find( (c) => c.name === "suggested_key");
+    const cmd = commands.find(c => c.name === "suggested_key");
 
     shortcutEl.textContent = cmd?.shortcut || "Not set";
   }catch(err){
