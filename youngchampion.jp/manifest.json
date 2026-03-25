@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "YC Viewer Downloader",
+  "version": "1.0.0",
+  "description": "Downloads visible rendered viewer pages as PNG/ZIP.",
+  "permissions": ["activeTab", "tabs", "downloads", "scripting", "notifications"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "YC Viewer Downloader",
+    "default_popup": "popup.html"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+J"
+      },
+      "description": "Open downloader popup"
+    }
+  }
+}

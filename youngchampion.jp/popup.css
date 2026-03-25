@@ -1,0 +1,50 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 300px;
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: #f5f5f5;
+}
+
+body {
+  padding: 12px;
+}
+
+.shortcut-line {
+  margin: 0 0 10px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+button {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  background: #2b2b2b;
+  color: #fff;
+  font-size: 14px;
+}
+
+button:hover {
+  background: #3a3a3a;
+}
+
+hr {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid #333;
+  margin: 6px 0;
+}
