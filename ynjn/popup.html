@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>YNJN Canvas Viewer</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <p>Shortcut: <span id="shortcut">Loading...</span></p>
+
+    <div class="wrap">
+      <div class="title">YNJN swiper viewer</div>
+
+      <button id="startAuto">Start (Auto ZIP)</button>
+      <button id="stopAuto">Stop</button>
+
+      <hr />
+
+      <button id="downloadSpread">Download Spread (PNG)</button>
+
+      <div class="row">
+        <button id="downloadLeft">Download Left</button>
+        <button id="downloadRight">Download Right</button>
+      </div>
+
+      <button id="checkStatus">Check Status</button>
+      <div id="status" class="status">Status: not checked yet</div>
+
+      <div class="hint">
+        Captures active and next swiper pages from the visible viewer.
+        Keep the reader fully visible on screen.
+      </div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

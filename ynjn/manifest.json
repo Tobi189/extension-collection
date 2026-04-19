@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "YNJN Swiper Canvas Downloader",
+  "version": "1.0.0",
+  "description": "Downloads visible YNJN viewer pages by screenshot cropping swiper canvases.",
+  "permissions": ["activeTab", "tabs", "downloads", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "YNJN Canvas Viewer",
+    "default_popup": "popup.html"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+M"
+      },
+      "description": "Open YNJN downloader popup"
+    }
+  }
+}
