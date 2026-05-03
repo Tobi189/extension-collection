@@ -23,13 +23,28 @@ function dataUrlToBlob(dataUrl) {
   const mime = /data:(.*?);base64/.exec(meta)?.[1] || "image/png";
   const bin = atob(base64);
   const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  for (let i = 0; i < bin.length; i++) {
+    bytes[i] = bin.charCodeAt(i);
+  }
   return new Blob([bytes], { type: mime });
 }
 
+async function captureVisibleTabPng(windowId) {
+  return chrome.tabs.captureVisibleTab(windowId, { format: "png" });
+}
 
+async function blobToDataUrl(blob) {
+  const buffer = await blob.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
 
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
 
+  return `data:${blob.type || "application/octet-stream"};base64,${btoa(binary)}`;
+}
 
 function unionRect(rects) {
   let left = rects[0].left;
@@ -52,24 +67,6 @@ function unionRect(rects) {
     width: right - left,
     height: bottom - top
   };
-}
-
-async function captureVisibleTabPng(windowId) {
-  return chrome.tabs.captureVisibleTab(windowId, { format: "png" });
-}
-
-async function blobToDataUrl(blob) {
-  const buffer = await blob.arrayBuffer();
-  const bytes = new Uint8Array(buffer);
-
-  let binary = "";
-  const chunkSize = 0x8000;
-
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
-  }
-
-  return `data:${blob.type || "application/octet-stream"};base64,${btoa(binary)}`;
 }
 
 async function cropRectsFromScreenshot(dataUrl, rectEntries, viewport) {
@@ -101,16 +98,14 @@ async function cropRectsFromScreenshot(dataUrl, rectEntries, viewport) {
       const bytes = new Uint8Array(buffer);
 
       let binary = "";
-      const chunk = 0x8000;
-      for (let i = 0; i < bytes.length; i += chunk) {
-        binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+      const chunkSize = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
       }
-
-      const pngDataUrl = "data:image/png;base64," + btoa(binary);
 
       out.push({
         ...entry,
-        pngDataUrl
+        pngDataUrl: "data:image/png;base64," + btoa(binary)
       });
     }
 
@@ -172,20 +167,34 @@ async function getViewerState(tabId) {
         (el) => el.classList && el.classList.contains("-cv-page")
       );
 
-      const stopMarkerIndex = children.findIndex(
+      // Ignore any leading PR/empty blocks before the real manga starts.
+      const firstRealIndex = children.findIndex(
         (el) =>
-          el.classList.contains("mode-empty") &&
-          el.classList.contains("mode-pr") &&
-          el.classList.contains("-cv-page")
+          !el.classList.contains("mode-empty") &&
+          !el.classList.contains("mode-pr")
       );
 
-      const endIndex = stopMarkerIndex === -1 ? children.length : stopMarkerIndex;
+      const startIndex = firstRealIndex === -1 ? 0 : firstRealIndex;
+
+      // Stop at the first PR/empty block AFTER manga has started.
+      const relativeStop = children
+        .slice(startIndex)
+        .findIndex(
+          (el) =>
+            el.classList.contains("mode-empty") &&
+            el.classList.contains("mode-pr") &&
+            el.classList.contains("-cv-page")
+        );
+
+      const endIndex =
+        relativeStop === -1 ? children.length : startIndex + relativeStop;
 
       const mangaPages = [];
       let mangaNumber = 1;
 
-      for (let i = 0; i < endIndex; i++) {
+      for (let i = startIndex; i < endIndex; i++) {
         const el = children[i];
+
         if (el.classList.contains("mode-empty")) continue;
 
         mangaPages.push({
@@ -227,14 +236,28 @@ async function getViewerState(tabId) {
         viewport,
         railRight: getComputedStyle(root).right,
         totalMangaPages,
+        startIndex,
+        endIndex,
         visibleRendered
       };
     }
   });
 
-  const state = results.map((x) => x.result).find((x) => x?.ok);
-  if (!state) throw new Error("Viewer not found.");
-  return state;
+  const goodStates = results
+    .map((x) => x.result)
+    .filter((x) => x?.ok);
+
+  if (!goodStates.length) {
+    throw new Error("Viewer not found.");
+  }
+
+  goodStates.sort((a, b) => {
+    const aScore = (a.visibleRendered?.length || 0) * 1000 + (a.totalMangaPages || 0);
+    const bScore = (b.visibleRendered?.length || 0) * 1000 + (b.totalMangaPages || 0);
+    return bScore - aScore;
+  });
+
+  return goodStates[0];
 }
 
 async function captureSelection(tab, kind) {
@@ -278,15 +301,18 @@ async function captureSelection(tab, kind) {
 
 async function downloadLeft(tab) {
   const crop = await captureSelection(tab, "left");
-await downloadPngDataUrl(crop.pngDataUrl, crop.filename);}
+  await downloadPngDataUrl(crop.pngDataUrl, crop.filename);
+}
 
 async function downloadRight(tab) {
   const crop = await captureSelection(tab, "right");
-await downloadPngDataUrl(crop.pngDataUrl, crop.filename);}
+  await downloadPngDataUrl(crop.pngDataUrl, crop.filename);
+}
 
 async function downloadSpread(tab) {
   const crop = await captureSelection(tab, "spread");
-await downloadPngDataUrl(crop.pngDataUrl, crop.filename);}
+  await downloadPngDataUrl(crop.pngDataUrl, crop.filename);
+}
 
 async function captureVisiblePagesForZip(tab) {
   const state = await getViewerState(tab.id);
@@ -302,7 +328,8 @@ async function captureVisiblePagesForZip(tab) {
   const screenshot = await captureVisibleTabPng(tab.windowId);
   const entries = pages.map((p) => ({
     domIndex: p.domIndex,
-    filename: `page_${String(p.domIndex + 1).padStart(3, "0")}.png`,
+    mangaNumber: p.mangaNumber,
+    filename: `page_${String(p.mangaNumber).padStart(3, "0")}.png`,
     rect: p.intersection
   }));
 
@@ -312,8 +339,9 @@ async function captureVisiblePagesForZip(tab) {
     totalMangaPages: state.totalMangaPages,
     items: crops.map((c) => ({
       domIndex: c.domIndex,
+      mangaNumber: c.mangaNumber,
       filename: c.filename,
-      blob: c.blob
+      pngDataUrl: c.pngDataUrl
     }))
   };
 }
@@ -355,36 +383,6 @@ async function clickNext(tabId) {
   return beforeState.beforeRight !== afterState.afterRight;
 }
 
-async function captureVisiblePagesForZip(tab) {
-  const state = await getViewerState(tab.id);
-  const pages = state.visibleRendered;
-
-  if (!pages.length) {
-    return {
-      totalMangaPages: state.totalMangaPages,
-      items: []
-    };
-  }
-
-  const screenshot = await captureVisibleTabPng(tab.windowId);
-  const entries = pages.map((p) => ({
-    domIndex: p.domIndex,
-    filename: `page_${String(p.domIndex + 1).padStart(3, "0")}.png`,
-    rect: p.intersection
-  }));
-
-  const crops = await cropRectsFromScreenshot(screenshot, entries, state.viewport);
-
-  return {
-    totalMangaPages: state.totalMangaPages,
-    items: crops.map((c) => ({
-      domIndex: c.domIndex,
-      filename: c.filename,
-      pngDataUrl: c.pngDataUrl
-    }))
-  };
-}
-
 async function runAutoZip(tab) {
   const zip = new JSZip();
   const seen = new Set();
@@ -394,9 +392,9 @@ async function runAutoZip(tab) {
 
     for (const item of batch.items) {
       if (!item.pngDataUrl) continue;
-      if (seen.has(item.domIndex)) continue;
+      if (seen.has(item.mangaNumber)) continue;
 
-      seen.add(item.domIndex);
+      seen.add(item.mangaNumber);
       zip.file(item.filename, item.pngDataUrl.split(",")[1], { base64: true });
     }
 
